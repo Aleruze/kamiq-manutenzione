@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Manutenzione Skoda Kamiq</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS per l'esportazione in foglio elettronico -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        skoda: {
+                            emerald: '#00B050',
+                            dark: '#1C2C24',
+                            light: '#F4F7F5',
+                            gray: '#7A8B82'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap');
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .skoda-gradient {
+            background: linear-gradient(135deg, #1C2C24 0%, #0D1612 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="skoda-gradient text-white shadow-md border-b-4 border-skoda-emerald">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <!-- Tuo Logo Personalizzato (File immagine locale) -->
+                <img src="miologo.png" alt="Logo Skoda" class="w-24 h-auto object-contain" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+                <!-- Fallback SVG in caso l'immagine non sia nella stessa cartella durante il test iniziale -->
+                <div id="fallback-logo" class="hidden">
+                    <svg class="w-12 h-12 text-skoda-emerald" viewBox="0 0 100 100" fill="currentColor">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="6"/>
+                        <path d="M50 20 L65 45 L53 42 L50 80 L47 42 L35 45 Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wider"><span class="text-skoda-emerald">KAMIQ</span></h1>
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">Registro Manutenzione Ufficiale</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="esportaFoglioElettronico()" class="bg-skoda-emerald hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200 shadow-md text-sm">
+                    <i class="fa-solid fa-file-excel"></i> Esporta ODS / Excel
+                </button>
+                <button onclick="window.print()" class="bg-transparent hover:bg-white/10 border border-white/30 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200 text-sm">
+                    <i class="fa-solid fa-print"></i> Stampa PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
+        
+        <!-- SEZIONE 1: DATI DEL VEICOLO (Intestazione Editabile) -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-skoda-dark px-6 py-4 border-b border-gray-800 flex justify-between items-center">
+                <h2 class="text-white font-bold tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-car text-skoda-emerald"></i> CARATTERISTICHE DEL VEICOLO
+                </h2>
+                <span class="text-xs text-skoda-emerald font-semibold bg-skoda-emerald/10 px-3 py-1 rounded-full border border-skoda-emerald/20">
+                    <i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i> Pronto all'uso
+                </span>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Proprietario -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nome Proprietario</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="ownerName" value="Giampaolo Ansaldi" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-semibold text-gray-700 transition">
+                    </div>
+                </div>
+
+                <!-- Targa -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Targa Veicolo</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-id-card"></i>
+                        </span>
+                        <input type="text" id="plateNumber" value="FZ 083 AK" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-semibold text-gray-700 uppercase tracking-wider transition">
+                    </div>
+                </div>
+
+                <!-- VIN Codice -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Codice VIN (Telaio)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </span>
+                        <input type="text" id="vinCode" value="TMBH65NW8L200000" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-mono text-sm text-gray-700 uppercase tracking-widest transition" placeholder="Inserisci codice telaio">
+                    </div>
+                </div>
+
+                <!-- Data Immatricolazione -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Data Immatricolazione</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </span>
+                        <input type="date" id="regDate" value="2021-05-14" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-semibold text-gray-700 transition">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI veloci delle manutenzioni -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Chilometri Attuali</p>
+                    <h3 id="kpi-km" class="text-2xl font-black text-gray-800 mt-1">0 Km</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totale Interventi</p>
+                    <h3 id="kpi-count" class="text-2xl font-black text-gray-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl">
+                    <i class="fa-solid fa-wrench"></i>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ultimo Intervento</p>
+                    <h3 id="kpi-last-date" class="text-xl font-bold text-gray-800 mt-1">N/D</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl">
+                    <i class="fa-solid fa-calendar-day"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE 2: INSERIMENTO NUOVO INTERVENTO -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-skoda-emerald"></i> Registra un Nuovo Intervento
+            </h3>
+            <form id="maintenanceForm" onsubmit="aggiungiRiga(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Intervento</label>
+                    <input type="date" id="newDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald focus:border-transparent outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Chilometraggio (Km)</label>
+                    <input type="number" id="newKm" required min="0" placeholder="Es. 35000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald focus:border-transparent outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrizione Lavori svolti / Note</label>
+                    <input type="text" id="newDesc" required placeholder="Es. Cambio Olio, Filtro Abitacolo..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald focus:border-transparent outline-none">
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-skoda-emerald hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-plus"></i> Inserisci riga
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- SEZIONE 3: TABELLA DELLE MANUTENZIONI -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center flex-wrap gap-2">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-table-list text-skoda-emerald"></i> Cronologia Manutenzione
+                </h3>
+                <span class="text-xs text-gray-500 bg-gray-200 px-3 py-1 rounded-full font-semibold">Ordinamento automatico cronologico decrescente</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table id="maintenanceTable" class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-skoda-dark text-white uppercase text-xs tracking-wider">
+                            <th class="py-4 px-6 font-bold w-48">Data</th>
+                            <th class="py-4 px-6 font-bold w-48">Chilometraggio (Km)</th>
+                            <th class="py-4 px-6 font-bold">Descrizione degli Interventi Effettuati</th>
+                            <th class="py-4 px-6 font-bold text-center w-24">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-200">
+                        <!-- Righe popolate da JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Stato vuoto se non ci sono elementi -->
+            <div id="emptyState" class="hidden py-12 text-center text-gray-400">
+                <i class="fa-solid fa-folder-open text-5xl mb-3"></i>
+                <p class="font-medium text-lg">Nessun intervento registrato.</p>
+                <p class="text-sm">Inizia a riempire il registro compilando il form qui sopra.</p>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-skoda-dark text-gray-400 py-6 mt-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p class="text-sm">Škoda Kamiq Service Log — Registro di Manutenzione</p>
+            <p class="text-xs text-gray-500">&copy; 2026 Registro di Servizio Personalizzato. Esporta in standard OpenDocument (.ods).</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Custom -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition duration-300 ease-out z-50">
+        <i class="fa-solid fa-circle-check text-skoda-emerald text-lg"></i>
+        <span id="toastMsg" class="font-semibold text-sm">Messaggio</span>
+    </div>
+
+    <script>
+        // Array di dati pre-popolati in base allo storico reale del veicolo
+        let interventi = [
+            { id: 1, data: "2022-04-15", km: 5000, descrizione: "Primo controllo di routine in officina Škoda, verifica livelli dei liquidi post-rodaggio." },
+            { id: 2, data: "2022-05-20", km: 7500, descrizione: "Ispezione generale post-consegna e serraggi di sicurezza ordinari." },
+            { id: 3, data: "2024-05-18", km: 28000, descrizione: "Tagliando biennale completo Škoda Service: sostituzione olio motore, filtro olio, filtro combinato abitacolo, lavaggio e cambio liquido freni." },
+            { id: 4, data: "2025-06-12", km: 42000, descrizione: "Manutenzione periodica annuale, inversione degli pneumatici, controllo convergenza e usura pastiglie dei freni." },
+            { id: 5, data: "2026-01-22", km: 51500, descrizione: "Tagliando completo invernale: sostituzione filtri (aria e abitacolo), candele di accensione, test efficienza della batteria e check diagnostico elettronico." }
+        ];
+
+        // Al caricamento, inizializza
+        window.onload = function() {
+            renderTabella();
+            document.getElementById('newDate').valueAsDate = new Date();
+        };
+
+        // Renderizza la tabella a schermo
+        function renderTabella() {
+            const tableBody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Ordina per data decrescente (la più recente in alto)
+            interventi.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            if (interventi.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                aggiornaKPIs(0, 0, "N/D");
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            let html = '';
+            interventi.forEach(item => {
+                const dataFormattata = formatDate(item.data);
+                html += `
+                    <tr class="hover:bg-skoda-light/50 transition">
+                        <td class="py-4 px-6 font-semibold text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-calendar-day text-skoda-emerald/70 mr-2"></i> ${dataFormattata}
+                        </td>
+                        <td class="py-4 px-6 font-mono font-bold text-gray-800 whitespace-nowrap">
+                            ${parseInt(item.km).toLocaleString('it-IT')} Km
+                        </td>
+                        <td class="py-4 px-6 text-gray-600 font-medium">
+                            ${item.descrizione}
+                        </td>
+                        <td class="py-4 px-6 text-center whitespace-nowrap">
+                            <button onclick="eliminaRiga(${item.id})" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition duration-150" title="Elimina record">
+                                <i class="fa-regular fa-trash-can text-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+            
+            // Calcolo dei KPI
+            const maxKm = interventi.length > 0 ? Math.max(...interventi.map(i => parseInt(i.km))) : 0;
+            const piuRecente = interventi[0] ? formatDate(interventi[0].data) : "N/D";
+            
+            aggiornaKPIs(maxKm, interventi.length, piuRecente);
+        }
+
+        function aggiornaKPIs(maxKm, count, lastDate) {
+            document.getElementById('kpi-km').innerText = maxKm > 0 ? `${maxKm.toLocaleString('it-IT')} Km` : '0 Km';
+            document.getElementById('kpi-count').innerText = count;
+            document.getElementById('kpi-last-date').innerText = lastDate;
+        }
+
+        function aggiungiRiga(event) {
+            event.preventDefault();
+
+            const dateVal = document.getElementById('newDate').value;
+            const kmVal = parseInt(document.getElementById('newKm').value);
+            const descVal = document.getElementById('newDesc').value.trim();
+
+            if (!dateVal || isNaN(kmVal) || !descVal) {
+                mostraToast("Per favore, compila tutti i campi richiesti!");
+                return;
+            }
+
+            const nuovoIntervento = {
+                id: Date.now(),
+                data: dateVal,
+                km: kmVal,
+                descrizione: descVal
+            };
+
+            interventi.push(nuovoIntervento);
+            renderTabella();
+
+            document.getElementById('newKm').value = '';
+            document.getElementById('newDesc').value = '';
+            document.getElementById('newDate').valueAsDate = new Date();
+
+            mostraToast("Nuovo intervento registrato!");
+        }
+
+        function eliminaRiga(id) {
+            interventi = interventi.filter(i => i.id !== id);
+            renderTabella();
+            mostraToast("Intervento rimosso dal registro");
+        }
+
+        function formatDate(dateString) {
+            const parti = dateString.split('-');
+            if (parti.length !== 3) return dateString;
+            return `${parti[2]} / ${parti[1]} / ${parti[0]}`;
+        }
+
+        function mostraToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function esportaFoglioElettronico() {
+            const owner = document.getElementById('ownerName').value;
+            const plate = document.getElementById('plateNumber').value.toUpperCase();
+            const vin = document.getElementById('vinCode').value.toUpperCase();
+            const regDate = formatDate(document.getElementById('regDate').value);
+
+            const datiFoglio = [
+                ["ŠKODA KAMIQ - REGISTRO MANUTENZIONE VEICOLO"],
+                ["Generato per uso personale e d'officina"],
+                [],
+                ["DATI DEL VEICOLO"],
+                ["Proprietario:", owner, "Targa:", plate],
+                ["Codice VIN (Telaio):", vin, "Data Immatricolazione:", regDate],
+                [],
+                ["CRONOLOGIA INTERVENTI DI MANUTENZIONE"],
+                ["Data Intervento", "Chilometraggio (Km)", "Descrizione ed Interventi Effettuati"]
+            ];
+
+            const interventiInOrdine = [...interventi].sort((a,b) => new Date(a.data) - new Date(b.data));
+            
+            interventiInOrdine.forEach(item => {
+                datiFoglio.push([
+                    formatDate(item.data),
+                    item.km,
+                    item.descrizione
+                ]);
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(datiFoglio);
+
+            ws['!cols'] = [
+                { wch: 18 },
+                { wch: 22 },
+                { wch: 70 }
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, "Manutenzione Skoda");
+            
+            const nomeFile = `Manutenzione_Skoda_Kamiq_${plate.replace(/\s+/g, '')}.ods`;
+            XLSX.writeFile(wb, nomeFile, { bookType: 'ods' });
+            
+            mostraToast("Download del file .ODS avviato!");
+        }
+    </script>
+</body>
+</html>
