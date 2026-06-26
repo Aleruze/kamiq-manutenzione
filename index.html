@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro Manutenzione Skoda Kamiq</title>
-    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- FontAwesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- ExcelJS e FileSaver per l'esportazione di fogli Excel STILIZZATI -->
+    <!-- ExcelJS per esportazione formattata e FileSaver per il download -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
-    <!-- Configurazione tema Tailwind -->
+    
     <script>
         tailwind.config = {
             theme: {
@@ -40,11 +36,14 @@
         .skoda-gradient {
             background: linear-gradient(135deg, #1C2C24 0%, #0D1612 100%);
         }
-        /* Nascondi le freccette nei campi numerici */
+        /* Nasconde le freccette nei campi numerici per un look più pulito */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
         }
     </style>
 </head>
@@ -54,25 +53,26 @@
     <header class="skoda-gradient text-white shadow-md border-b-4 border-skoda-emerald">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <!-- SVG Logo -->
-                <svg class="w-12 h-12 text-skoda-emerald" viewBox="0 0 100 100" fill="currentColor">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="6"/>
-                    <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 3"/>
-                    <path d="M50 20 L65 45 L53 42 L50 80 L47 42 L35 45 Z" fill="currentColor"/>
-                    <path d="M45 40 L30 35 L40 48 Z" fill="currentColor"/>
-                    <path d="M55 40 L70 35 L60 48 Z" fill="currentColor"/>
-                </svg>
+                <!-- Ricerca automatica del tuo file miologo.png. Se fallisce, mostra il fallback-logo -->
+                <img src="miologo.png" alt="Logo Skoda" class="w-24 h-auto object-contain" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+                
+                <!-- Fallback SVG di emergenza -->
+                <div id="fallback-logo" class="hidden">
+                    <svg class="w-12 h-12 text-skoda-emerald" viewBox="0 0 100 100" fill="currentColor">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="6"/>
+                        <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 3"/>
+                        <path d="M50 20 L65 45 L53 42 L50 80 L47 42 L35 45 Z" fill="currentColor"/>
+                    </svg>
+                </div>
+
                 <div>
-                    <h1 class="text-xl font-extrabold tracking-wider">ŠKODA <span class="text-skoda-emerald">KAMIQ</span></h1>
+                    <h1 class="text-xl font-extrabold tracking-wider"><span class="text-skoda-emerald">KAMIQ</span></h1>
                     <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">Registro Manutenzione Ufficiale</p>
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="esportaExcelStilizzato()" class="bg-skoda-emerald hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200 shadow-md text-sm">
-                    <i class="fa-solid fa-file-excel"></i> Esporta Excel
-                </button>
-                <button onclick="window.print()" class="bg-transparent hover:bg-white/10 border border-white/30 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200 text-sm">
-                    <i class="fa-solid fa-print"></i> Stampa
+                <button onclick="esportaExcel()" class="bg-skoda-emerald hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200 shadow-md text-sm">
+                    <i class="fa-solid fa-file-excel"></i> Esporta Excel formattato
                 </button>
             </div>
         </div>
@@ -80,89 +80,71 @@
 
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
         
-        <!-- SEZIONE 1: DATI DEL VEICOLO -->
+        <!-- SEZIONE 1: DATI DEL VEICOLO (Salvataggio automatico ad ogni modifica) -->
         <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="bg-skoda-dark px-6 py-4 border-b border-gray-800 flex justify-between items-center">
                 <h2 class="text-white font-bold tracking-wide flex items-center gap-2">
                     <i class="fa-solid fa-car text-skoda-emerald"></i> CARATTERISTICHE DEL VEICOLO
                 </h2>
                 <span class="text-xs text-skoda-emerald font-semibold bg-skoda-emerald/10 px-3 py-1 rounded-full border border-skoda-emerald/20">
-                    <i class="fa-solid fa-cloud-arrow-down mr-1"></i> Salvataggio Auto
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> Salvataggio auto
                 </span>
             </div>
             
-            <!-- I campi hanno oninput per salvare in tempo reale nella memoria locale -->
             <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nome Proprietario</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <i class="fa-solid fa-user"></i>
-                        </span>
-                        <input type="text" id="ownerName" oninput="salvaDatiVeicolo()" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-semibold text-gray-700 transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="ownerName" oninput="salvaDatiVeicolo()" placeholder="Es. Mario Rossi" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald font-semibold text-gray-700 transition">
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Targa Veicolo</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <i class="fa-solid fa-id-card"></i>
-                        </span>
-                        <input type="text" id="plateNumber" oninput="salvaDatiVeicolo()" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-semibold text-gray-700 uppercase tracking-wider transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-id-card"></i></span>
+                        <input type="text" id="plateNumber" oninput="salvaDatiVeicolo()" placeholder="Es. AB 123 CD" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald font-semibold text-gray-700 uppercase tracking-wider transition">
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Codice VIN (Telaio)</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <i class="fa-solid fa-fingerprint"></i>
-                        </span>
-                        <input type="text" id="vinCode" oninput="salvaDatiVeicolo()" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-mono text-sm text-gray-700 uppercase tracking-widest transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-fingerprint"></i></span>
+                        <input type="text" id="vinCode" oninput="salvaDatiVeicolo()" placeholder="Es. TMB..." class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald font-mono text-sm text-gray-700 uppercase tracking-widest transition">
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Data Immatricolazione</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <i class="fa-solid fa-calendar-check"></i>
-                        </span>
-                        <input type="date" id="regDate" onchange="salvaDatiVeicolo()" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald focus:border-transparent font-semibold text-gray-700 transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-calendar-check"></i></span>
+                        <input type="date" id="regDate" onchange="salvaDatiVeicolo()" class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-skoda-emerald font-semibold text-gray-700 transition">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- KPI -->
+        <!-- KPI veloci -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Chilometri Attuali</p>
                     <h3 id="kpi-km" class="text-2xl font-black text-gray-800 mt-1">0 Km</h3>
                 </div>
-                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl">
-                    <i class="fa-solid fa-gauge-high"></i>
-                </div>
+                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl"><i class="fa-solid fa-gauge-high"></i></div>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totale Interventi</p>
                     <h3 id="kpi-count" class="text-2xl font-black text-gray-800 mt-1">0</h3>
                 </div>
-                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl">
-                    <i class="fa-solid fa-wrench"></i>
-                </div>
+                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl"><i class="fa-solid fa-wrench"></i></div>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ultimo Intervento</p>
                     <h3 id="kpi-last-date" class="text-xl font-bold text-gray-800 mt-1">N/D</h3>
                 </div>
-                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl">
-                    <i class="fa-solid fa-calendar-day"></i>
-                </div>
+                <div class="w-12 h-12 rounded-full bg-skoda-emerald/10 flex items-center justify-center text-skoda-emerald text-xl"><i class="fa-solid fa-calendar-day"></i></div>
             </div>
         </div>
 
@@ -174,19 +156,19 @@
             <form id="maintenanceForm" onsubmit="aggiungiRiga(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Intervento</label>
-                    <input type="date" id="newDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald focus:border-transparent outline-none">
+                    <input type="date" id="newDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Chilometraggio (Km)</label>
-                    <input type="number" id="newKm" required min="0" placeholder="Es. 30000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald focus:border-transparent outline-none">
+                    <input type="number" id="newKm" required min="0" placeholder="Es. 35000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrizione Lavori svolti</label>
-                    <input type="text" id="newDesc" required placeholder="Es. Cambio Olio, Filtro..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald focus:border-transparent outline-none">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrizione Lavori / Note</label>
+                    <input type="text" id="newDesc" required placeholder="Es. Cambio Olio, Filtro Abitacolo..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-skoda-emerald outline-none">
                 </div>
                 <div>
                     <button type="submit" class="w-full bg-skoda-emerald hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-circle-plus"></i> Inserisci riga
+                        <i class="fa-solid fa-circle-plus"></i> Aggiungi al registro
                     </button>
                 </div>
             </form>
@@ -219,71 +201,58 @@
             <div id="emptyState" class="hidden py-12 text-center text-gray-400">
                 <i class="fa-solid fa-folder-open text-5xl mb-3"></i>
                 <p class="font-medium text-lg">Nessun intervento registrato.</p>
-                <p class="text-sm">Inizia a riempire il registro compilando il form qui sopra.</p>
             </div>
         </section>
         
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-skoda-dark text-gray-400 py-6 mt-12 border-t border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
-            <p class="text-sm">Škoda Kamiq Service Log — Creato su misura per la manutenzione periodica</p>
-        </div>
-    </footer>
-
-    <!-- Toast Notification -->
+    <!-- Toast Notification Custom -->
     <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition duration-300 ease-out z-50">
         <i class="fa-solid fa-circle-check text-skoda-emerald text-lg"></i>
         <span id="toastMsg" class="font-semibold text-sm">Messaggio</span>
     </div>
 
     <script>
-        // --- GESTIONE DATI E LOCAL STORAGE ---
-        let interventi = JSON.parse(localStorage.getItem('kamiq_interventi')) || [];
-        let veicolo = JSON.parse(localStorage.getItem('kamiq_veicolo')) || {
-            owner: "Mario Rossi",
-            plate: "GF 123 XY",
-            vin: "TMBH65NW8L209483",
-            regDate: "2021-05-14"
-        };
+        // --- 1. GESTIONE DATI LOCALI (LocalStorage) ---
+        let interventi = JSON.parse(localStorage.getItem('kamiq_interventi_v2'));
+        
+        if (!interventi) {
+            interventi = []; // Inizia vuoto per il vero utente
+            salvaInterventi();
+        }
 
-        // Inizializzazione al caricamento
-        window.onload = function() {
-            // Carica dati veicolo negli input
-            document.getElementById('ownerName').value = veicolo.owner;
-            document.getElementById('plateNumber').value = veicolo.plate;
-            document.getElementById('vinCode').value = veicolo.vin;
-            document.getElementById('regDate').value = veicolo.regDate;
-
-            // Dati demo se vuoto (solo prima volta)
-            if (interventi.length === 0 && !localStorage.getItem('kamiq_interventi')) {
-                interventi = [
-                    { id: 1, data: "2024-05-18", km: 28000, descrizione: "Tagliando: sostituzione olio, filtri aria/abitacolo." }
-                ];
-                salvaInterventi();
-            }
-
-            renderTabella();
-            document.getElementById('newDate').valueAsDate = new Date();
-        };
-
-        // Salvataggio nel browser
         function salvaInterventi() {
-            localStorage.setItem('kamiq_interventi', JSON.stringify(interventi));
+            localStorage.setItem('kamiq_interventi_v2', JSON.stringify(interventi));
         }
 
         function salvaDatiVeicolo() {
-            veicolo = {
+            const data = {
                 owner: document.getElementById('ownerName').value,
                 plate: document.getElementById('plateNumber').value,
                 vin: document.getElementById('vinCode').value,
                 regDate: document.getElementById('regDate').value
             };
-            localStorage.setItem('kamiq_veicolo', JSON.stringify(veicolo));
+            localStorage.setItem('kamiq_veicolo_v2', JSON.stringify(data));
         }
 
-        // --- GESTIONE INTERFACCIA E TABELLA ---
+        function caricaDatiVeicolo() {
+            const data = JSON.parse(localStorage.getItem('kamiq_veicolo_v2'));
+            if (data) {
+                if(data.owner) document.getElementById('ownerName').value = data.owner;
+                if(data.plate) document.getElementById('plateNumber').value = data.plate;
+                if(data.vin) document.getElementById('vinCode').value = data.vin;
+                if(data.regDate) document.getElementById('regDate').value = data.regDate;
+            }
+        }
+
+        // --- 2. INIZIALIZZAZIONE ---
+        window.onload = function() {
+            caricaDatiVeicolo();
+            renderTabella();
+            document.getElementById('newDate').valueAsDate = new Date();
+        };
+
+        // --- 3. LOGICA TABELLA E INTERVENTI ---
         function renderTabella() {
             const tableBody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
@@ -307,13 +276,11 @@
                             <i class="fa-solid fa-calendar-day text-skoda-emerald/70 mr-2"></i> ${formatDate(item.data)}
                         </td>
                         <td class="py-4 px-6 font-mono font-bold text-gray-800 whitespace-nowrap">
-                            ${parseInt(item.km).toLocaleString('it-IT')}
+                            ${parseInt(item.km).toLocaleString('it-IT')} Km
                         </td>
-                        <td class="py-4 px-6 text-gray-600 font-medium">
-                            ${item.descrizione}
-                        </td>
+                        <td class="py-4 px-6 text-gray-600 font-medium">${item.descrizione}</td>
                         <td class="py-4 px-6 text-center whitespace-nowrap">
-                            <button onclick="eliminaRiga(${item.id})" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition" title="Elimina record">
+                            <button onclick="eliminaRiga(${item.id})" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition duration-150">
                                 <i class="fa-regular fa-trash-can text-lg"></i>
                             </button>
                         </td>
@@ -334,14 +301,16 @@
             document.getElementById('kpi-last-date').innerText = lastDate;
         }
 
-        // --- GESTIONE INSERIMENTO/ELIMINAZIONE ---
         function aggiungiRiga(event) {
             event.preventDefault();
             const dateVal = document.getElementById('newDate').value;
             const kmVal = parseInt(document.getElementById('newKm').value);
             const descVal = document.getElementById('newDesc').value.trim();
 
-            if (!dateVal || isNaN(kmVal) || !descVal) return;
+            if (!dateVal || isNaN(kmVal) || !descVal) {
+                mostraToast("Compila tutti i campi!");
+                return;
+            }
 
             interventi.push({ id: Date.now(), data: dateVal, km: kmVal, descrizione: descVal });
             salvaInterventi();
@@ -349,20 +318,20 @@
 
             document.getElementById('newKm').value = '';
             document.getElementById('newDesc').value = '';
-            document.getElementById('newDate').valueAsDate = new Date();
-            mostraToast("Nuovo intervento registrato!");
+            mostraToast("Intervento salvato!");
         }
 
         function eliminaRiga(id) {
             interventi = interventi.filter(i => i.id !== id);
             salvaInterventi();
             renderTabella();
-            mostraToast("Intervento rimosso.");
+            mostraToast("Intervento rimosso");
         }
 
         function formatDate(dateString) {
             const p = dateString.split('-');
-            return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dateString;
+            if (p.length !== 3) return dateString;
+            return `${p[2]}/${p[1]}/${p[0]}`;
         }
 
         function mostraToast(msg) {
@@ -372,122 +341,98 @@
             setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
 
-        // --- ESPORTAZIONE EXCEL CON STILI (EXCELJS) ---
-        async function esportaExcelStilizzato() {
-            // Creo un nuovo Workbook (file Excel)
-            const workbook = new ExcelJS.Workbook();
-            workbook.creator = 'Skoda App';
-            const worksheet = workbook.addWorksheet('Registro Manutenzione', {
-                views: [{ showGridLines: false }] // Nascondi griglia default per pulizia
-            });
-
-            // Colori Skoda
-            const colorEmerald = 'FF00B050';
-            const colorDark = 'FF1C2C24';
-            const colorLight = 'FFF4F7F5';
-
-            // Imposta larghezza colonne
-            worksheet.columns = [
-                { key: 'data', width: 20 },
-                { key: 'km', width: 25 },
-                { key: 'desc', width: 70 }
-            ];
-
-            // 1. Intestazione Principale
-            worksheet.mergeCells('A1:C1');
-            const titleRow = worksheet.getCell('A1');
-            titleRow.value = 'ŠKODA KAMIQ - REGISTRO MANUTENZIONE VEICOLO';
-            titleRow.font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
-            titleRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colorDark } };
-            titleRow.alignment = { vertical: 'middle', horizontal: 'center' };
-            worksheet.getRow(1).height = 40;
-
-            // Spazio
-            worksheet.addRow([]);
-
-            // 2. Dati del Veicolo (Sfondo Grigio chiaro/Verde)
-            worksheet.mergeCells('A3:C3');
-            const subTitle1 = worksheet.getCell('A3');
-            subTitle1.value = 'DETTAGLI DEL VEICOLO';
-            subTitle1.font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
-            subTitle1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colorEmerald } };
-            subTitle1.alignment = { vertical: 'middle', horizontal: 'center' };
-
-            // Aggiungo i dati veicolo formattati
-            const targa = veicolo.plate.toUpperCase();
-            const row4 = worksheet.addRow(['Proprietario:', veicolo.owner, '']);
-            const row5 = worksheet.addRow(['Targa:', targa, '']);
-            const row6 = worksheet.addRow(['Telaio (VIN):', veicolo.vin.toUpperCase(), '']);
-            const row7 = worksheet.addRow(['Immatricolazione:', formatDate(veicolo.regDate), '']);
-            
-            // Stile grassetto per le etichette dei dati veicolo
-            [row4, row5, row6, row7].forEach(row => {
-                row.getCell(1).font = { bold: true };
-                row.getCell(2).alignment = { horizontal: 'left' };
-                // Aggiunge un bordo laterale per racchiudere i dati
-                row.getCell(1).border = { left: {style:'thin'} };
-                row.getCell(3).border = { right: {style:'thin'} };
-            });
-            row7.getCell(1).border = { left: {style:'thin'}, bottom: {style:'thin'} };
-            row7.getCell(2).border = { bottom: {style:'thin'} };
-            row7.getCell(3).border = { right: {style:'thin'}, bottom: {style:'thin'} };
-
-            // Spazio
-            worksheet.addRow([]);
-
-            // 3. Tabella Manutenzione
-            worksheet.mergeCells('A9:C9');
-            const subTitle2 = worksheet.getCell('A9');
-            subTitle2.value = 'CRONOLOGIA INTERVENTI DI MANUTENZIONE';
-            subTitle2.font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
-            subTitle2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colorEmerald } };
-            subTitle2.alignment = { vertical: 'middle', horizontal: 'center' };
-
-            // Intestazione Tabella Dati
-            const headerRow = worksheet.addRow(['Data Intervento', 'Chilometraggio (Km)', 'Descrizione Lavori Effettuati']);
-            headerRow.eachCell((cell) => {
-                cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colorDark } };
-                cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                cell.border = { top: {style:'thin'}, bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} };
-            });
-
-            // 4. Inserimento Righe Interventi (ordinati cronologicamente per l'export)
-            const interventiInOrdine = [...interventi].sort((a,b) => new Date(a.data) - new Date(b.data));
-            
-            interventiInOrdine.forEach((item, index) => {
-                const row = worksheet.addRow([
-                    formatDate(item.data),
-                    `${item.km.toLocaleString('it-IT')} Km`,
-                    item.descrizione
-                ]);
-
-                // Zebratura righe (colori alternati)
-                const isEven = index % 2 === 0;
-                const rowFillColor = isEven ? colorLight : 'FFFFFFFF';
-
-                row.eachCell((cell, colNumber) => {
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowFillColor } };
-                    cell.border = { top: {style:'thin'}, bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} };
-                    cell.alignment = { vertical: 'middle', wrapText: true }; // wrapText essenziale per descrizioni lunghe
-                    
-                    if(colNumber === 1 || colNumber === 2) {
-                        cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                        cell.font = { bold: (colNumber === 2) }; // Km in grassetto
-                    }
-                });
-            });
-
-            // Generazione file e download nel browser
+        // --- 4. ESPORTAZIONE EXCELJS FORMATTATA E GRAFICA ---
+        async function esportaExcel() {
             try {
-                const buffer = await workbook.xlsx.writeBuffer();
-                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                const nomeFile = `Manutenzione_Skoda_${targa.replace(/\s+/g, '')}.xlsx`;
-                saveAs(blob, nomeFile);
-                mostraToast("Download Excel completato!");
+                const owner = document.getElementById('ownerName').value || "N/D";
+                const plate = document.getElementById('plateNumber').value.toUpperCase() || "N/D";
+                const vin = document.getElementById('vinCode').value.toUpperCase() || "N/D";
+                const regDate = document.getElementById('regDate').value ? formatDate(document.getElementById('regDate').value) : "N/D";
+
+                // Creazione Workbook e Foglio
+                const wb = new ExcelJS.Workbook();
+                const ws = wb.addWorksheet('Manutenzione', {views: [{showGridLines: false}]});
+
+                // --- STILI GLOBALI ---
+                const skodaDark = '1C2C24';
+                const skodaEmerald = '00B050';
+                
+                // Intestazione Principale
+                ws.mergeCells('A1:C1');
+                const titleCell = ws.getCell('A1');
+                titleCell.value = 'ŠKODA KAMIQ - REGISTRO MANUTENZIONE UFFICIALE';
+                titleCell.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+                titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: skodaDark } };
+                titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.mergeCells('A2:C2');
+                ws.getCell('A2').value = 'Dati Veicolo e Storico Interventi';
+                ws.getCell('A2').font = { name: 'Arial', size: 10, italic: true, color: { argb: 'FF555555' } };
+                ws.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+                ws.addRow([]); // Riga vuota 3
+
+                // Dati Veicolo Box
+                ws.getCell('A4').value = 'Proprietario:';
+                ws.getCell('B4').value = owner;
+                ws.getCell('A5').value = 'Targa:';
+                ws.getCell('B5').value = plate;
+                ws.getCell('A6').value = 'Telaio (VIN):';
+                ws.getCell('B6').value = vin;
+                ws.getCell('A7').value = 'Immatricolazione:';
+                ws.getCell('B7').value = regDate;
+
+                // Stile Box Veicolo
+                for(let i=4; i<=7; i++) {
+                    ws.getCell(`A${i}`).font = { bold: true, color: { argb: skodaDark } };
+                    ws.getCell(`B${i}`).font = { bold: true };
+                }
+                ws.addRow([]); // Riga vuota 8
+
+                // Header Tabella Interventi
+                const headerRow = ws.addRow(['Data Intervento', 'Chilometraggio (Km)', 'Descrizione Lavori Svolti']);
+                headerRow.eachCell((cell) => {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: skodaEmerald } };
+                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                    cell.border = {
+                        top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'}
+                    };
+                });
+
+                // Aggiunta Dati (Ordinati temporalmente)
+                const interventiInOrdine = [...interventi].sort((a,b) => new Date(a.data) - new Date(b.data));
+                
+                interventiInOrdine.forEach((item, index) => {
+                    const row = ws.addRow([formatDate(item.data), item.km, item.descrizione]);
+                    
+                    row.eachCell((cell, colNumber) => {
+                        cell.border = { top: {style:'thin', color: {argb:'FFE2E8F0'}}, bottom: {style:'thin', color: {argb:'FFE2E8F0'}} };
+                        cell.alignment = { vertical: 'middle', horizontal: colNumber === 3 ? 'left' : 'center' };
+                        // Effetto zebra
+                        if (index % 2 === 0) {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+                        }
+                    });
+                    
+                    // Formato numero colonna km
+                    row.getCell(2).numFmt = '#,##0 "Km"';
+                });
+
+                // Larghezza Colonne
+                ws.getColumn(1).width = 20; // Data
+                ws.getColumn(2).width = 25; // Km
+                ws.getColumn(3).width = 65; // Descrizione
+
+                // Salvataggio tramite FileSaver
+                const buffer = await wb.xlsx.writeBuffer();
+                const nomeFile = `Skoda_Kamiq_${plate.replace(/\s+/g, '')}.xlsx`;
+                saveAs(new Blob([buffer]), nomeFile);
+                
+                mostraToast("File Excel scaricato con successo!");
+
             } catch (error) {
-                console.error(error);
-                mostraToast("Errore durante l'esportazione.");
+                console.error("Errore export Excel:", error);
+                mostraToast("Errore durante l'esportazione");
             }
         }
     </script>
