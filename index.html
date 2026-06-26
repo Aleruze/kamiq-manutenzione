@@ -70,9 +70,12 @@
                     <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">Registro Manutenzione Ufficiale</p>
                 </div>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 print:hidden">
                 <button onclick="esportaExcel()" class="bg-skoda-emerald hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200 shadow-md text-sm">
                     <i class="fa-solid fa-file-excel"></i> Esporta Excel formattato
+                </button>
+                <button onclick="window.print()" class="bg-transparent hover:bg-white/10 border border-white/30 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200 text-sm">
+                    <i class="fa-solid fa-print"></i> Stampa PDF
                 </button>
             </div>
         </div>
@@ -149,7 +152,7 @@
         </div>
 
         <!-- SEZIONE 2: INSERIMENTO NUOVO INTERVENTO -->
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 print:hidden">
             <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-plus-circle text-skoda-emerald"></i> Registra un Nuovo Intervento
             </h3>
@@ -189,7 +192,7 @@
                             <th class="py-4 px-6 font-bold w-48">Data</th>
                             <th class="py-4 px-6 font-bold w-48">Km</th>
                             <th class="py-4 px-6 font-bold">Descrizione</th>
-                            <th class="py-4 px-6 font-bold text-center w-24">Azioni</th>
+                            <th class="py-4 px-6 font-bold text-center w-24 print:hidden">Azioni</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-gray-200">
@@ -279,7 +282,7 @@
                             ${parseInt(item.km).toLocaleString('it-IT')} Km
                         </td>
                         <td class="py-4 px-6 text-gray-600 font-medium">${item.descrizione}</td>
-                        <td class="py-4 px-6 text-center whitespace-nowrap">
+                        <td class="py-4 px-6 text-center whitespace-nowrap print:hidden">
                             <button onclick="eliminaRiga(${item.id})" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition duration-150">
                                 <i class="fa-regular fa-trash-can text-lg"></i>
                             </button>
